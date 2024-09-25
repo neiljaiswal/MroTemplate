@@ -1,0 +1,22 @@
+{
+  "author": "MRO Corporation",
+  "classifications": [
+    "Web",
+    "Api",
+    "ASP.NET",
+    "Clean Architecture"
+  ],
+  "description": "The purpose of this template is to provide a robust and streamlined methodology for enterprise application development, capitalizing on the strengths of Clean Architecture and ASP.NET Core.",
+  "name": "MRO Clean Architecture DDD & CQRS",
+  "defaultName": "MroCleanArchitecture",
+  "identity": "Mro.CleanArchitecture.CSharp",
+  "groupIdentity": "Mro.CleanArchitecture",
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  },
+  "shortName": "mro-ca-sln",
+  "sourceName": "gatherly",
+  "guids": [],
+  "preferNameDirectory": true
+}

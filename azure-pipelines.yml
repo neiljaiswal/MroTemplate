@@ -1,0 +1,66 @@
+trigger:
+  branches:
+    include:
+      - main  # Change this to the branch you want to trigger builds
+
+pool:
+  vmImage: 'windows-latest'
+
+variables:
+  buildConfiguration: 'Release'
+  azureSubscription: '<YOUR_AZURE_SUBSCRIPTION_ID>'  # Replace with your Azure subscription
+  webAppName: '<YOUR_WEBAPP_NAME>'                   # Replace with your Azure Web App name
+  resourceGroupName: '<YOUR_RESOURCE_GROUP_NAME>'    # Replace with your Resource Group name
+
+steps:
+  # 1. Checkout source code
+  - task: Checkout@1
+
+  # 2. Setup .NET Core SDK
+  - task: UseDotNet@2
+    inputs:
+      packageType: 'sdk'
+      version: '8.x.x'  # Ensure you use .NET Core 8 SDK
+      installationPath: $(Agent.ToolsDirectory)/dotnet
+
+  # 3. Restore NuGet packages
+  - task: NuGetCommand@2
+    inputs:
+      restoreSolution: '**/*.sln'
+
+  # 4. Build the project
+  - task: DotNetCoreCLI@2
+    inputs:
+      command: 'build'
+      arguments: '--configuration $(buildConfiguration)'
+      projects: '**/*.csproj'
+
+  # 5. Run unit tests (if applicable)
+  - task: DotNetCoreCLI@2
+    inputs:
+      command: 'test'
+      arguments: '--configuration $(buildConfiguration)'
+      projects: '**/*.csproj'
+
+  # 6. Publish the build artifacts
+  - task: DotNetCoreCLI@2
+    inputs:
+      command: 'publish'
+      publishWebProjects: true
+      arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+      modifyOutputPath: true
+
+  # 7. Publish build artifacts to Azure DevOps
+  - task: PublishBuildArtifacts@1
+    inputs:
+      pathToPublish: '$(Build.ArtifactStagingDirectory)'
+      artifactName: 'drop'
+      publishLocation: 'Container'
+
+  # 8. Deploy to Azure Web App
+  - task: AzureWebApp@1
+    inputs:
+      azureSubscription: $(azureSubscription)
+      appName: $(webAppName)
+      package: '$(Build.ArtifactStagingDirectory)'
+      resourceGroupName: $(resourceGroupName)
